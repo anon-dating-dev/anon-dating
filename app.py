@@ -11,7 +11,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 application = tornado.web.Application([
     (r"/", MainHandler),
-    (r"/login", VkAuthHandler),
+    (r"/vk/login/?", VkAuthHandler, {'login_url': '/vk/login'}),
 ])
 
 if __name__ == "__main__":

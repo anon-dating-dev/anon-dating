@@ -2,6 +2,7 @@ from settings_local import apply_settings_local
 
 settings = {
     'app': {
+        'base_url': 'http://localhost',
         'port': 8888
     },
     'auth': {
