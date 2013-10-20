@@ -1,18 +1,19 @@
 import tornado.web
 import tornado.ioloop
 from settings import Settings
+from views.index import IndexHandler
 from auth.vk import VkAuthHandler
 
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write("fooo")
-
+app_settings = {
+    'debug': True,
+    'template_path': './templates'
+}
 
 application = tornado.web.Application([
-    (r"/", MainHandler),
-    (r"/vk/login/?", VkAuthHandler, {'login_url': '/vk/login'}),
-])
+    (r"/", IndexHandler),
+    (r"/login/vk/?", VkAuthHandler, {'login_url': '/login/vk'}),
+], **app_settings)
 
 if __name__ == "__main__":
     application.listen(Settings.get('app')['port'])

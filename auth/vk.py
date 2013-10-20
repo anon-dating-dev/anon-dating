@@ -15,6 +15,7 @@ class VkAuthHandler(tornado.web.RequestHandler, VKMixin):
     @tornado.gen.coroutine
     def get(self):
         code = self.get_argument("code", False)
+        #@todo: catch AuthError
         if not code:
             yield self.authorize_redirect(redirect_uri=self._get_redirect_uri(),
                                           client_id=self._authSettings['client_id'])
