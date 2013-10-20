@@ -36,7 +36,7 @@ class VKMixin(OAuth2Mixin):
 
     def _on_access_token(self, callback, response):
         if response.error:
-            callback.set_exception(AuthError('Vkontakte auth error: %s' % str(response)))
+            callback.set_exception(AuthError('Vk auth error: %s' % str(response)))
             return
         body = json.loads(response.body)
         access_token = body['access_token']
