@@ -1,27 +1,19 @@
 import tornado.web
-import momoko
 from vkmixin import VKMixin
+from common.base_request_handler import BaseRequestHandler
 from settings import Settings
 from models.user import User
 
-class VkAuthHandler(tornado.web.RequestHandler, VKMixin):
 
+class VkAuthHandler(BaseRequestHandler, VKMixin):
+    """
+    Auth users with vk.com OAuth2.
+    """
     def initialize(self, login_url):
         self._login_url = login_url
         self._base_url = Settings.get('app')['base_url']
         self._port = Settings.get('app')['port']
         self._authSettings = Settings.get('auth')['vk']
-
-    @property
-    def db(self):
-        if not hasattr(self.application, 'db'):
-            dsn = 'dbname=%s user=%s password=%s host=%s port=%s' % ('anon_dating',
-                                                                     'anon_dating_admin',
-                                                                     'anon',
-                                                                     'localhost',
-                                                                     5433)
-            self.application.db = momoko.Pool(dsn=dsn)
-        return self.application.db
 
     @tornado.web.asynchronous
     @tornado.gen.coroutine
@@ -38,6 +30,7 @@ class VkAuthHandler(tornado.web.RequestHandler, VKMixin):
                                                      code=code)
             print "User %s" % user
             args = {
+                'external_id': user['uid'],
                 'city_id': user['city'],
                 'profile': {'first_name': user['first_name'],
                             'last_name': user['last_name'],

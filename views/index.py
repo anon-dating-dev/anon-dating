@@ -1,6 +1,9 @@
-import tornado.web
+from common.base_request_handler import BaseRequestHandler
 
 
-class IndexHandler(tornado.web.RequestHandler):
+class IndexHandler(BaseRequestHandler):
+    """
+    Render main page.
+    """
     def get(self):
         self.render('index.html')
