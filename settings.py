@@ -1,4 +1,7 @@
-from settings_local import apply_settings_local
+try:
+    from settings_local import apply_settings_local
+except ImportError:
+    apply_settings_local = lambda x: x
 
 settings = {
     'app': {
