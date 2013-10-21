@@ -12,6 +12,7 @@ CREATE SEQUENCE users_id_seq
 CREATE TABLE IF NOT EXISTS users
 (
   id integer NOT NULL DEFAULT nextval('users_id_seq'::regclass),
+  external_id character varying NOT NULL UNIQUE,
   city_id integer NOT NULL,
   city_name character varying NOT NULL,
   gender smallint NOT NULL,
@@ -21,6 +22,16 @@ CREATE TABLE IF NOT EXISTS users
 WITH (
   OIDS=FALSE
 );
+
+CREATE OR REPLACE RULE "insert_or_update_users" AS
+     ON INSERT TO users
+     WHERE EXISTS
+          (SELECT 1 FROM users WHERE external_id = NEW.external_id)
+DO INSTEAD UPDATE users SET
+          city_id = NEW.city_id,
+          city_name = NEW.city_name,
+          profile = NEW.profile
+     WHERE external_id = NEW.external_id
 
 /*
 Relationships
