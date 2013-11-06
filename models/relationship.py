@@ -7,10 +7,20 @@ class Relationship(Model):
     """
     def __init__(self, db, **kwargs):
         super(Relationship, self).__init__(db)
-        self._db = db
+        self._id = kwargs.get('id')
         self._first_id = kwargs.get('first_id')
         self._second_id = kwargs.get('second_id')
         self._level = kwargs.get('level')
+
+    @classmethod
+    def _get_instance_from_cursor(cls, db, cursor):
+        kwargs = {
+            'id': cursor.id,
+            'first_id': cursor.first_id,
+            'second_id': cursor.second_id,
+            'level': cursor.level
+        }
+        return super(db, **kwargs)
 
     @property
     def first_id(self):
@@ -26,19 +36,35 @@ class Relationship(Model):
 
     @level.setter
     def level(self, value):
-        query = "UPDATE relationships" \
-                "SET level=%s" \
-                "WHERE first_id=%s AND second_id=%s"
-        return self.__class__._execute(self._db, query, (value, self.first_id, self.second_id))
+        self._level = value
+        self.save()
+
+    def save(self):
+        insert_query = """
+            INSERT INTO relationships
+                (first_id, second_id)
+            VALUES (%s, %s)
+        """
+        update_query = """
+            UPDATE relationships
+                SET level=%s
+                WHERE first_id=%s AND second_id=%s
+        """
+        inset_params = (self._first_id, self._second_id)
+        update_params = (self._level, self._first_id, self._second_id)
+        super(insert_query, update_query, inset_params, update_params)
 
     def remove(self):
         query = "DROP FROM relationships" \
                 "WHERE first_id=%s AND second_id=%s"
-        return self.__class__._execute(self._db, query, (self.first_id, self.second_id))
+        self.__class__._execute(self._db, query, (self.first_id, self.second_id))
 
     @classmethod
-    def create(cls, db, first_id, second_id):
-        query = "INSERT INTO relationships" \
-                "(first_id, second_id)" \
-                "VALUES (%s, %s)"
-        return cls._execute(db, query, (first_id, second_id))
+    def get_by_ids(cls, db, first_id, second_id):
+        query = """
+            SELECT FROM relationships
+            WHERE
+                (first_id = %s AND second_id = %s) OR
+                (first_id = %s AND second_id = %s)
+        """
+        cls.select(db, query, (first_id, second_id, second_id, first_id))

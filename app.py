@@ -7,7 +7,8 @@ from auth.vk import VkAuthHandler
 
 app_settings = {
     'debug': True,
-    'template_path': './templates'
+    'template_path': './templates',
+    'cookie_secret': 'jas7dKs8&d9cs9jj!090ksJU9*jsbg_hs'
 }
 
 application = tornado.web.Application([

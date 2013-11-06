@@ -24,22 +24,22 @@ class VkAuthHandler(BaseRequestHandler, VKMixin):
             yield self.authorize_redirect(redirect_uri=self._get_redirect_uri(),
                                           client_id=self._authSettings['client_id'])
         else:
-            user = yield self.get_authenticated_user(redirect_uri=self._get_redirect_uri(),
+            vk_user = yield self.get_authenticated_user(redirect_uri=self._get_redirect_uri(),
                                                      client_id=self._authSettings['client_id'],
                                                      client_secret=self._authSettings['client_secret'],
                                                      code=code)
-            print "User %s" % user
-            args = {
-                'external_id': user['uid'],
-                'city_id': user['city'],
-                'profile': {'first_name': user['first_name'],
-                            'last_name': user['last_name'],
-                            'user_pic_small': user['photo_50'],
-                            'user_pic_big': user['photo_max_orig']},
-                'gender': user['sex']
-            }
-            cursor = yield User.create(db=self.db, **args)
-            print "Saved"
+            user = yield User.get_by_external_id(self.db, vk_user['uid'])
+            user = User(self.db) if user is None else user
+            user.external_id = vk_user['uid']
+            user.city_id = vk_user['city']
+            user.city_name = 'foooo'
+            user.gender = vk_user['sex']
+            user.profile = {'first_name': vk_user['first_name'],
+                            'last_name': vk_user['last_name'],
+                            'user_pic_small': vk_user['photo_50'],
+                            'user_pic_big': vk_user['photo_max_orig']}
+            yield user.save()
+            self.set_secure_cookie('uid', str(user.id))
             self.redirect('/')
 
     def _get_redirect_uri(self):

@@ -23,16 +23,6 @@ WITH (
   OIDS=FALSE
 );
 
-CREATE OR REPLACE RULE "insert_or_update_users" AS
-     ON INSERT TO users
-     WHERE EXISTS
-          (SELECT 1 FROM users WHERE external_id = NEW.external_id)
-DO INSTEAD UPDATE users SET
-          city_id = NEW.city_id,
-          city_name = NEW.city_name,
-          profile = NEW.profile
-     WHERE external_id = NEW.external_id
-
 /*
 Relationships
 */
